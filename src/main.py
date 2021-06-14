@@ -150,7 +150,7 @@ def main(cfg):
 
         if isRecord:
             os.makedirs(outdir, exist_ok=True)
-            print("recog")
+            print("recording")
             if results.left_hand_landmarks is None:
                 print("defect")
             else:
