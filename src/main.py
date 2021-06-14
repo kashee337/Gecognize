@@ -133,15 +133,16 @@ def main(cfg):
             outdir = datetime.now().strftime("%Y%m%d%H%M%S")
             cnt = 0
             if isRecord:
-                print("strat!")
+                print("recording start!")
             else:
-                print("finish!")
+                print("recording finish!")
 
         elif key == ord("d"):
             isDrawing = not isDrawing
             if isDrawing:
-                print("draw")
+                print("drawing start!")
             else:
+                print("drawing finish!")
                 if len(traj) > 0:
                     res, score = dp_matcher(normalize_traj(traj))
                     print(res, score)
