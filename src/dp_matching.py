@@ -36,15 +36,22 @@ class DPMatching:
             with open(path, "rb") as f:
                 tmp = pickle.load(f)
             data.append([tmp.landmark[8].x, tmp.landmark[8].y])
-        data = np.asarray(data)
-        if normalize:
-            min_x = np.min(data.T[0])
-            max_x = np.max(data.T[0])
-            min_y = np.min(data.T[1])
-            max_y = np.max(data.T[1])
-            data -= np.array([min_x, min_y])
-            data /= np.array([max_x - min_x, max_y - min_y])
 
+        if normalize:
+            data = DPMatching.normalize_traj(data)
+        else:
+            data = np.asarray(data)
+        return data
+
+    @staticmethod
+    def normalize_traj(data):
+        data = np.asarray(data)
+        min_x = np.min(data.T[0])
+        max_x = np.max(data.T[0])
+        min_y = np.min(data.T[1])
+        max_y = np.max(data.T[1])
+        data -= np.array([min_x, min_y])
+        data /= np.array([max_x - min_x, max_y - min_y])
         return data
 
     def __call__(self, s1):

@@ -21,17 +21,6 @@ def get_landmarks(mp_landmarks, size=(720, 1280)):
     return landmarks
 
 
-def normalize_traj(data):
-    data = np.asarray(data, dtype=np.float32)
-    min_x = np.min(data.T[0])
-    max_x = np.max(data.T[0])
-    min_y = np.min(data.T[1])
-    max_y = np.max(data.T[1])
-    data -= np.array([min_x, min_y])
-    data /= np.array([max_x - min_x, max_y - min_y])
-    return data
-
-
 class Canvas:
     def __init__(self, pos=(700, 100), size=(500, 500), lifespan=50):
         self.pt1 = pos
@@ -144,7 +133,7 @@ def main(cfg):
             else:
                 print("drawing finish!")
                 if len(traj) > 0:
-                    res, score = dp_matcher(normalize_traj(traj))
+                    res, score = dp_matcher(DPMatching.normalize_traj(traj))
                     print(res, score)
                     canvas.set_text(res)
             traj = []
