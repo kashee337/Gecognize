@@ -4,7 +4,7 @@
 
 ## Usage
 ```
-$pip install -r requirements.txt
-$cd src
-$python main.py
+$ pip install -r requirements.txt
+$ cd src
+$ python main.py
 ```
