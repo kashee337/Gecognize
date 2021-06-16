@@ -15,23 +15,23 @@ class DPMatching:
         df = pd.DataFrame({"path": pathlist})
         df["group"] = df["path"].agg(lambda t: t.split("/")[-2])
         df["template"] = df["path"].agg(lambda t: t.split("/")[-3])
-        self.template_dict = DPMatching.gen_template(df, normalize)
+        self.template_dict = DPMatching.gen_template(df,normalize)
         self.threshold = threshold
-        self.normalize = True
+        self.normalize = normalize
 
     @staticmethod
-    def gen_template(df):
+    def gen_template(df,normalize):
         template_dict = defaultdict(list)
         groups = df["group"].unique()
         for group in groups:
             _df = df.query("group==@group")
-            data = DPMatching.extract_data(_df["path"])
+            data = DPMatching.extract_data(_df["path"],normalize)
             name = _df["template"].values[0]
             template_dict[name].append(data)
         return template_dict
 
     @staticmethod
-    def extract_data(pathlist, normalize=True):
+    def extract_data(pathlist, normalize):
         data = []
         for path in sorted(pathlist):
             with open(path, "rb") as f:
