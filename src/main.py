@@ -133,7 +133,7 @@ def main(cfg):
             else:
                 print("drawing finish!")
                 if len(traj) > 0:
-                    res, score = dp_matcher(DPMatching.normalize_traj(traj))
+                    res, score = dp_matcher(traj)
                     print(res, score)
                     canvas.set_text(res)
             traj = []

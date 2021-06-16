@@ -10,13 +10,14 @@ from dtw import dtw
 
 
 class DPMatching:
-    def __init__(self, template_dir, threshold=15):
+    def __init__(self, template_dir, threshold=15, normalize=True):
         pathlist = glob.glob(os.path.join(template_dir, "*/*/*.pickle"))
         df = pd.DataFrame({"path": pathlist})
         df["group"] = df["path"].agg(lambda t: t.split("/")[-2])
         df["template"] = df["path"].agg(lambda t: t.split("/")[-3])
-        self.template_dict = DPMatching.gen_template(df)
+        self.template_dict = DPMatching.gen_template(df, normalize)
         self.threshold = threshold
+        self.normalize = True
 
     @staticmethod
     def gen_template(df):
@@ -55,6 +56,9 @@ class DPMatching:
         return data
 
     def __call__(self, s1):
+
+        if self.normalize:
+            s1 = DPMatching.normalize_traj(s1)
 
         score = defaultdict(list)
         for k, s2_list in self.template_dict.items():
