@@ -2,9 +2,18 @@ import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-from scipy.spatial import distance_matrix
+from numba import njit
 
 
+@njit
+def calc_dist(v1, v2):
+    dist = 0.0
+    for k1, k2 in zip(v1, v2):
+        dist += (k1 - k2) * (k1 - k2)
+    return dist
+
+
+@njit
 def calc_min(v1, v2, v3):
     values = sorted([v1, v2, v3])
     indices = [[0, -1], [-1, 0], [-1, -1]]
@@ -12,32 +21,39 @@ def calc_min(v1, v2, v3):
     return values[0], indices[idx]
 
 
-def dtw(s1, s2):
-    n = len(s1)
-    m = len(s2)
-    INF = 1e9
-    cost_mat = distance_matrix(s1.reshape(n, -1), s2.reshape(m, -1))
+@njit(nogil=True)
+def dtw(_s1, _s2):
+    n = len(_s1)
+    m = len(_s2)
+    s1 = _s1.reshape(n, -1)
+    s2 = _s2.reshape(m, -1)
+    dp = np.full((n + 1, m + 1), np.inf)
 
-    dp = np.ones([n, m]) * INF
-    path = [[list() for i in range(m)] for j in range(n)]
-    dp[0][0] = cost_mat[0][0]
-
+    dp[0][0] = calc_dist(s1[0], s2[0])
     for i in range(n):
         for j in range(m):
-            if i == 0 and j == 0:
-                continue
-            v1 = dp[i][j - 1] if j > 0 else INF
-            v2 = dp[i - 1][j] if i > 0 else INF
-            v3 = dp[i - 1][j - 1] if i > 0 and j > 0 else INF
+            dist = calc_dist(s1[i], s2[j])
+            dp[i + 1][j + 1] = dist + min(dp[i + 1, j], dp[i, j + 1], dp[i, j])
 
-            val, indices = calc_min(v1, v2, v3)
+    return dp[1:, 1:]
 
-            dp[i][j] = val + cost_mat[i][j]
-            path[i][j] = path[i + indices[0]][j + indices[1]].copy()
-            path[i][j].append([i + indices[0], j + indices[1]])
 
-    path[n - 1][m - 1].append([n - 1, m - 1])
-    return dp, path
+@njit
+def dtw_path(dp_mat):
+    n, m = dp_mat.shape
+    path = [(n - 1, m - 1)]
+    while path[-1] != (0, 0):
+        i, j = path[-1]
+        if i == 0:
+            path.append((0, j - 1))
+        elif j == 0:
+            path.append((i - 1, 0))
+        else:
+            _, indice = calc_min(
+                dp_mat[i][j - 1], dp_mat[i - 1][j], dp_mat[i - 1][j - 1]
+            )
+            path.append((i + indice[0], j + indice[1]))
+    return path
 
 
 def visualize(a, b, dp, path):

@@ -15,17 +15,17 @@ class DPMatching:
         df = pd.DataFrame({"path": pathlist})
         df["group"] = df["path"].agg(lambda t: t.split("/")[-2])
         df["template"] = df["path"].agg(lambda t: t.split("/")[-3])
-        self.template_dict = DPMatching.gen_template(df,normalize)
+        self.template_dict = DPMatching.gen_template(df, normalize)
         self.threshold = threshold
         self.normalize = normalize
 
     @staticmethod
-    def gen_template(df,normalize):
+    def gen_template(df, normalize):
         template_dict = defaultdict(list)
         groups = df["group"].unique()
         for group in groups:
             _df = df.query("group==@group")
-            data = DPMatching.extract_data(_df["path"],normalize)
+            data = DPMatching.extract_data(_df["path"], normalize)
             name = _df["template"].values[0]
             template_dict[name].append(data)
         return template_dict
@@ -63,8 +63,8 @@ class DPMatching:
         score = defaultdict(list)
         for k, s2_list in self.template_dict.items():
             for s2 in s2_list:
-                dp, _ = dtw(s1, s2)
-                score[k].append(dp[-1][-1])
+                dp = dtw(s1, s2)
+                score[k].append(np.sqrt(dp[-1][-1]))
 
         self.score = sorted(score.items(), key=lambda x: np.median(x[1]))
         inf_res = self.score[0]
