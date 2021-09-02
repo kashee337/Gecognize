@@ -15,10 +15,10 @@ def calc_dist(v1, v2):
 
 @njit
 def calc_min(v1, v2, v3):
-    values = sorted([v1, v2, v3])
+    v = min(v1, v2, v3)
     indices = [[0, -1], [-1, 0], [-1, -1]]
-    idx = [v1, v2, v3].index(values[0])
-    return values[0], indices[idx]
+    idx = [v1, v2, v3].index(v)
+    return v, indices[idx]
 
 
 @njit(nogil=True)
@@ -53,7 +53,7 @@ def dtw_path(dp_mat):
                 dp_mat[i][j - 1], dp_mat[i - 1][j], dp_mat[i - 1][j - 1]
             )
             path.append((i + indice[0], j + indice[1]))
-    return path
+    return path[::-1]
 
 
 def visualize(a, b, dp, path):
